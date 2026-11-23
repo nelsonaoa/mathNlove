@@ -243,3 +243,32 @@
     width: 100%;
     height: 100%;
 }
+/* 子分類膠囊列 */
+.sub-unit-nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: -16px 0 24px;
+    padding: 8px 12px;
+}
+
+.sub-unit-nav button {
+    background: var(--card-bg);
+    border: 1px solid var(--primary-border);
+    color: var(--primary-color);
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: bold;
+    padding: 4px 14px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sub-unit-nav button:hover,
+.sub-unit-nav button.active {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    border-color: var(--primary-color);
+}
