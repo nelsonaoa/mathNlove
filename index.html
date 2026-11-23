@@ -135,7 +135,8 @@
 
             modal.classList.add('open');
 
-            const params = {
+            const params = 
+            {
                 "appName": "classic",
                 "filename": `files/${item.file}`,
                 "width": 860,
@@ -144,6 +145,7 @@
                 "showAlgebraInput": false,
                 "showMenuBar": false,
                 "enableRightClick": false,
+                "enableShiftDragZoom": item.allowZoom === true, 
                 "showResetIcon": true,
                 "language": "zh-TW"
             };
