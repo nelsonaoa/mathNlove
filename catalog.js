@@ -24,7 +24,13 @@ const ggbCatalog = [
         title: "高階方塊單邊翻轉",
         youtube: "https://www.youtube.com/watch?v=dhaYCQqy9D8",
         note: "基本上是公式演示，點擊觀看完整影片。"
+    },
+    {
+        unit: "conic",
+        subUnit: "橢圓",
+        title: "在橢圓的焦點呼喊愛",
+        youtube: "https://www.youtube.com/watch?v=X5SoHm1w_wE",
+        note: "在橢圓上的焦點說話時，聲音會準確的聚集在另一個焦點上。如果你我都在橢圓的焦點上，相信我們的心聲都會進入彼此的心中。"
     }
-
     
 ];
