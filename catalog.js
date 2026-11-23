@@ -16,5 +16,13 @@ const ggbCatalog = [
         title: "【教學影片】高階方塊對邊交換",
         youtube: "https://www.youtube.com/watch?v=eYOHfv0b_C0",
         note: "點擊直接觀看完整教學影片說明。"
+    },
+    {
+        unit: "video",
+        title: "【教學影片】高階方塊單邊翻轉",
+        youtube: "https://www.youtube.com/watch?v=dhaYCQqy9D8",
+        note: "點擊直接觀看完整教學影片說明。"
     }
+
+    
 ];
