@@ -272,3 +272,15 @@
     color: #ffffff;
     border-color: var(--primary-color);
 }
+/* 多標籤並排間距 */
+.card-top,
+.modal-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.card-top .unit-badge {
+    margin-bottom: 0;
+}
