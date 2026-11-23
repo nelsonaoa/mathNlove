@@ -216,3 +216,30 @@
     color: var(--primary-color);
     margin-bottom: 6px;
 }
+/* YouTube 影片區塊 */
+.modal-video {
+    margin-top: 16px;
+}
+
+.modal-video h4 {
+    margin: 0 0 10px 0;
+    color: var(--primary-color);
+    font-size: 15px;
+}
+
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #eadce0;
+    background: #000000;
+}
+
+.video-wrapper iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
