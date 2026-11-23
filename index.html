@@ -31,6 +31,9 @@
         <button data-tag="絕對值函數">絕對值函數</button>
         <button data-tag="三角函數">三角函數</button>
         <button data-tag="圓錐曲線">圓錐曲線</button>
+        <button data-tag="圓錐曲線">拋物線</button>
+        <button data-tag="圓錐曲線">橢圓</button>
+        <button data-tag="圓錐曲線">雙曲線</button>
         <button data-tag="極座標曲線">極座標曲線</button>
         <button data-tag="空間圖形">空間圖形</button>
         <button data-tag="平面向量">平面向量</button>
@@ -85,30 +88,10 @@
         const modal = document.getElementById('ggb-modal');
         const closeModalBtn = document.getElementById('close-modal');
 
-        // 相容舊代碼對照表（就算 catalog.js 裡寫英文代碼或中文標籤都能正常運作）
-        const legacyTagMap = {
-            'pi': '圓周率',
-            'geo-alg': '幾何與代數',
-            'abs': '絕對值函數',
-            'trig': '三角函數',
-            'conic': '圓錐曲線',
-            'polar': '極座標曲線',
-            'space': '空間圖形',
-            'vector': '平面向量',
-            'series': '級數',
-            'stat': '統計',
-            'rubik': '魔術方塊',
-            'toy': '自製玩具'
-        };
-
-        // 統一取得某筆資料的所有中文標籤陣列
+        // 取得標籤陣列
         function getItemTags(item)
         {
-            const rawTags = Array.isArray(item.tags)
-                ? item.tags
-                : [item.unit, item.subUnit].filter(Boolean);
-
-            return rawTags.map(t => legacyTagMap[t] || t);
+            return Array.isArray(item.tags) ? item.tags : [];
         }
 
         // 渲染卡片清單
