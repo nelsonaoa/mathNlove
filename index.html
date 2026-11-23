@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>愛的數學你我他 - 互動數學實驗室</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- GeoGebra 官方網頁播放器 -->
+    <script src="https://www.geogebra.org/apps/deployggb.js"></script>
+</head>
+<body>
+
+    <!-- 頂部返回導覽列（與其他專案統一） -->
+    <div class="top-bar">
+        <a href="https://nelsonaoa.github.io/" class="back-btn">← 返回首頁</a>
+        <a href="https://www.youtube.com/" target="_blank" class="yt-btn">▶ YouTube 頻道</a>
+    </div>
+
+    <!-- 寬版橫幅主視覺（融入圓角卡片風格） -->
+    <header class="banner-card">
+        <img src="banner-math.jpg" alt="愛的數學你我他 - GeoGebra 互動數學">
+    </header>
+
+    <!-- 單元分類篩選膠囊列 -->
+    <nav class="unit-nav" id="unit-nav">
+        <button class="active" data-unit="all">全部單元</button>
+        <button data-unit="pi">圓周率</button>
+        <button data-unit="geo-alg">幾何與代數</button>
+        <button data-unit="abs">絕對值函數</button>
+        <button data-unit="trig">三角函數</button>
+        <button data-unit="conic">圓錐曲線</button>
+        <button data-unit="space">空間圖形</button>
+        <button data-unit="vector">平面向量</button>
+        <button data-unit="series">級數</button>
+        <button data-unit="stat">統計</button>
+        <button data-unit="rubik">魔術方塊</button>
+        <button data-unit="toy">自製玩具</button>
+      <button data-unit="video">YT影片</button>
+    </nav>
+
+    <!-- 互動模擬清單（由 catalog.js 自動生成卡片） -->
+    <main class="sim-grid" id="sim-grid"></main>
+
+    <!-- 點擊卡片後彈出的 GeoGebra 純互動視窗（無原檔下載鈕） -->
+    <div class="modal-overlay" id="ggb-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div>
+                    <span class="modal-unit-badge" id="modal-unit">單元名稱</span>
+                    <h2 id="modal-title">模擬標題</h2>
+                </div>
+                <button class="close-btn" id="close-modal">✕ 關閉</button>
+            </div>
+            <!-- GeoGebra 互動畫布區 -->
+            <div class="ggb-container">
+                <div id="ggb-element"></div>
+            </div>
+            <!-- 教學註解與操作說明區 -->
+            <div class="modal-note">
+                <h4>📝 教學註解與操作提示</h4>
+                <p id="modal-desc"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2026 愛的數學你我他. All rights reserved.
+    </div>
+
+    <script src="catalog.js"></script>
+    <script>
+        const simGrid = document.getElementById('sim-grid');
+        const unitButtons = document.querySelectorAll('#unit-nav button');
+        const modal = document.getElementById('ggb-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+
+        // 單元代碼對照中文名稱
+        const unitNames = {
+            'pi': '圓周率',
+            'geo-alg': '幾何與代數',
+            'abs': '絕對值函數',
+            'trig': '三角函數',
+            'conic': '圓錐曲線',
+            'space': '空間圖形',
+            'vector': '平面向量',
+            'series': '級數',
+            'stat': '統計',
+            'rubik': '魔術方塊',
+            'toy': '自製玩具',
+            'video'
+        };
+
+        // 渲染卡片清單
+        function renderCards(filterUnit = 'all')
+        {
+            simGrid.innerHTML = '';
+            const filtered = filterUnit === 'all'
+                ? ggbCatalog
+                : ggbCatalog.filter(item => item.unit === filterUnit);
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'sim-card';
+                const subTag = item.subUnit ? ` · ${item.subUnit}` : '';
+
+                card.innerHTML = `
+                    <div>
+                        <div class="card-top">
+                            <span class="unit-badge">${unitNames[item.unit] || item.unit}${subTag}</span>
+                        </div>
+                        <h3>${item.title}</h3>
+                        <p>${item.note}</p>
+                    </div>
+                    <div class="card-footer">
+                        <span>開啟互動操作</span>
+                        <span class="arrow">→</span>
+                    </div>
+                `;
+
+                card.addEventListener('click', () => openGgbModal(item));
+                simGrid.appendChild(card);
+            });
+        }
+
+        // 開啟 GeoGebra 互動視窗（純互動、不提供下載）
+        function openGgbModal(item)
+        {
+            const subTag = item.subUnit ? ` · ${item.subUnit}` : '';
+            document.getElementById('modal-unit').textContent = `${unitNames[item.unit] || item.unit}${subTag}`;
+            document.getElementById('modal-title').textContent = item.title;
+            document.getElementById('modal-desc').textContent = item.note;
+            document.getElementById('ggb-element').innerHTML = '';
+
+            modal.classList.add('open');
+
+            const params = {
+                "appName": "classic",
+                "filename": `files/${item.file}`,
+                "width": 860,
+                "height": 520,
+                "showToolBar": false,
+                "showAlgebraInput": false,
+                "showMenuBar": false,
+                "enableRightClick": false,
+                "showResetIcon": true,
+                "language": "zh-TW"
+            };
+
+            const applet = new GGBApplet(params, true);
+            applet.inject('ggb-element');
+        }
+
+        closeModalBtn.addEventListener('click', () => {
+            modal.classList.remove('open');
+            document.getElementById('ggb-element').innerHTML = '';
+        });
+
+        modal.addEventListener('click', (e) => {
+            if(e.target === modal)
+            {
+                modal.classList.remove('open');
+                document.getElementById('ggb-element').innerHTML = '';
+            }
+        });
+
+        unitButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                unitButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderCards(btn.getAttribute('data-unit'));
+            });
+        });
+
+        renderCards('all');
+    </script>
+</body>
+</html>
