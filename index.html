@@ -23,25 +23,22 @@
         <img src="banner-math.jpg" alt="愛的數學你我他 - GeoGebra 互動數學">
     </header>
 
-    <!-- 單元分類篩選膠囊列 -->
-    <nav class="unit-nav" id="unit-nav">
-        <button class="active" data-unit="all">全部單元</button>
-        <button data-unit="pi">圓周率</button>
-        <button data-unit="geo-alg">幾何與代數</button>
-        <button data-unit="abs">絕對值函數</button>
-        <button data-unit="trig">三角函數</button>
-        <button data-unit="conic">圓錐曲線</button>
-        <button data-unit="polar">極座標曲線</button>
-        <button data-unit="space">空間圖形</button>
-        <button data-unit="vector">平面向量</button>
-        <button data-unit="series">級數</button>
-        <button data-unit="stat">統計</button>
-        <button data-unit="rubik">魔術方塊</button>
-        <button data-unit="toy">自製玩具</button>
+    <!-- 標籤篩選膠囊列 -->
+    <nav class="unit-nav" id="tag-nav">
+        <button class="active" data-tag="all">全部標籤</button>
+        <button data-tag="圓周率">圓周率</button>
+        <button data-tag="幾何與代數">幾何與代數</button>
+        <button data-tag="絕對值函數">絕對值函數</button>
+        <button data-tag="三角函數">三角函數</button>
+        <button data-tag="圓錐曲線">圓錐曲線</button>
+        <button data-tag="極座標曲線">極座標曲線</button>
+        <button data-tag="空間圖形">空間圖形</button>
+        <button data-tag="平面向量">平面向量</button>
+        <button data-tag="級數">級數</button>
+        <button data-tag="統計">統計</button>
+        <button data-tag="魔術方塊">魔術方塊</button>
+        <button data-tag="自製玩具">自製玩具</button>
     </nav>
-
-    <!-- 子分類篩選膠囊列（當選取的單元底下有 subUnit 時自動顯示） -->
-    <div class="sub-unit-nav" id="sub-unit-nav" style="display: none;"></div>
 
     <!-- 互動模擬清單（由 catalog.js 自動生成卡片） -->
     <main class="sim-grid" id="sim-grid"></main>
@@ -51,7 +48,7 @@
         <div class="modal-box">
             <div class="modal-header">
                 <div>
-                    <span class="modal-unit-badge" id="modal-unit">單元名稱</span>
+                    <div class="modal-tags" id="modal-tags"></div>
                     <h2 id="modal-title">模擬標題</h2>
                 </div>
                 <button class="close-btn" id="close-modal">✕ 關閉</button>
@@ -61,14 +58,14 @@
                 <div id="ggb-element"></div>
             </div>
 
-            <!-- 2. YouTube 教學解說影片區（移到說明上方） -->
+            <!-- 2. YouTube 教學解說影片區 -->
             <div class="modal-video" id="modal-video-box" style="display: none;">
                 <div class="video-wrapper">
                     <iframe id="modal-video-frame" src="" title="YouTube 教學影片" frameborder="0" allowfullscreen></iframe>
                 </div>
             </div>
 
-            <!-- 3. 教學註解與操作說明區（統一放在最下方） -->
+            <!-- 3. 教學註解與操作說明區 -->
             <div class="modal-note">
                 <h4>📝 教學註解與操作提示</h4>
                 <p id="modal-desc"></p>
@@ -84,16 +81,12 @@
     <script src="catalog.js"></script>
     <script>
         const simGrid = document.getElementById('sim-grid');
-        const unitButtons = document.querySelectorAll('#unit-nav button');
-        const subUnitNav = document.getElementById('sub-unit-nav');
+        const tagButtons = document.querySelectorAll('#tag-nav button');
         const modal = document.getElementById('ggb-modal');
         const closeModalBtn = document.getElementById('close-modal');
 
-        let currentUnit = 'all';
-        let currentSubUnit = 'all';
-
-        // 單元代碼對照中文名稱
-        const unitNames = {
+        // 相容舊代碼對照表（就算 catalog.js 裡寫英文代碼或中文標籤都能正常運作）
+        const legacyTagMap = {
             'pi': '圓周率',
             'geo-alg': '幾何與代數',
             'abs': '絕對值函數',
@@ -108,69 +101,34 @@
             'toy': '自製玩具'
         };
 
-        // 渲染子分類列（自動從該單元的資料中收集不重複的 subUnit）
-        function renderSubUnits(unit)
+        // 統一取得某筆資料的所有中文標籤陣列
+        function getItemTags(item)
         {
-            if(unit === 'all')
-            {
-                subUnitNav.style.display = 'none';
-                subUnitNav.innerHTML = '';
-                return;
-            }
+            const rawTags = Array.isArray(item.tags)
+                ? item.tags
+                : [item.unit, item.subUnit].filter(Boolean);
 
-            const itemsInUnit = ggbCatalog.filter(item => item.unit === unit);
-            const subUnits = [...new Set(itemsInUnit.map(item => item.subUnit).filter(Boolean))];
-
-            if(subUnits.length === 0)
-            {
-                subUnitNav.style.display = 'none';
-                subUnitNav.innerHTML = '';
-                return;
-            }
-
-            subUnitNav.style.display = 'flex';
-            subUnitNav.innerHTML = `<button class="${currentSubUnit === 'all' ? 'active' : ''}" data-sub="all">全部${unitNames[unit] || ''}</button>`;
-
-            subUnits.forEach(sub => {
-                const btn = document.createElement('button');
-                btn.textContent = sub;
-                btn.setAttribute('data-sub', sub);
-                if(currentSubUnit === sub)
-                {
-                    btn.classList.add('active');
-                }
-                subUnitNav.appendChild(btn);
-            });
-
-            subUnitNav.querySelectorAll('button').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    currentSubUnit = btn.getAttribute('data-sub');
-                    renderSubUnits(currentUnit);
-                    renderCards();
-                });
-            });
+            return rawTags.map(t => legacyTagMap[t] || t);
         }
 
-        // 渲染卡片清單（同時支援大單元與子標籤雙重篩選）
-        function renderCards()
+        // 渲染卡片清單
+        function renderCards(filterTag = 'all')
         {
             simGrid.innerHTML = '';
-            const filtered = ggbCatalog.filter(item => {
-                const matchUnit = (currentUnit === 'all') || (item.unit === currentUnit);
-                const matchSub = (currentSubUnit === 'all') || (item.subUnit === currentSubUnit);
-                return matchUnit && matchSub;
-            });
+            const filtered = filterTag === 'all'
+                ? ggbCatalog
+                : ggbCatalog.filter(item => getItemTags(item).includes(filterTag));
 
             filtered.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'sim-card';
-                const subTag = item.subUnit ? ` · ${item.subUnit}` : '';
+                const tagsHtml = getItemTags(item)
+                    .map(tag => `<span class="unit-badge"># ${tag}</span>`)
+                    .join('');
 
                 card.innerHTML = `
                     <div>
-                        <div class="card-top">
-                            <span class="unit-badge">${unitNames[item.unit] || item.unit}${subTag}</span>
-                        </div>
+                        <div class="card-top">${tagsHtml}</div>
                         <h3>${item.title}</h3>
                         <p>${item.note}</p>
                     </div>
@@ -196,11 +154,13 @@
             return match ? `https://www.youtube.com/embed/${match[1]}` : url;
         }
 
-        // 開啟 GeoGebra 互動視窗（支援自訂寬高、滾輪鎖定與 YouTube 影片）
+        // 開啟 GeoGebra 互動視窗
         function openGgbModal(item)
         {
-            const subTag = item.subUnit ? ` · ${item.subUnit}` : '';
-            document.getElementById('modal-unit').textContent = `${unitNames[item.unit] || item.unit}${subTag}`;
+            const tagsHtml = getItemTags(item)
+                .map(tag => `<span class="modal-unit-badge"># ${tag}</span>`)
+                .join('');
+            document.getElementById('modal-tags').innerHTML = tagsHtml;
             document.getElementById('modal-title').textContent = item.title;
             document.getElementById('modal-desc').innerHTML = item.note;
 
@@ -208,7 +168,6 @@
             const ggbElement = document.getElementById('ggb-element');
             ggbElement.innerHTML = '';
 
-            // 1. 處理 GGB 畫布（若該項目是「純 YT 影片」沒有 file，則隱藏 GGB 畫布）
             if(item.file)
             {
                 ggbContainer.style.display = 'flex';
@@ -233,7 +192,6 @@
                 ggbContainer.style.display = 'none';
             }
 
-            // 2. 處理 YouTube 影片（有填 youtube 欄位才顯示）
             const videoBox = document.getElementById('modal-video-box');
             const videoFrame = document.getElementById('modal-video-frame');
             if(item.youtube)
@@ -250,7 +208,6 @@
             modal.classList.add('open');
         }
 
-        // 統一的關閉清理函式（關閉視窗時順便停止 YouTube 播放聲音）
         function closeGgbModal()
         {
             modal.classList.remove('open');
@@ -267,18 +224,15 @@
             }
         });
 
-        unitButtons.forEach(btn => {
+        tagButtons.forEach(btn => {
             btn.addEventListener('click', () => {
-                unitButtons.forEach(b => b.classList.remove('active'));
+                tagButtons.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                currentUnit = btn.getAttribute('data-unit');
-                currentSubUnit = 'all';
-                renderSubUnits(currentUnit);
-                renderCards();
+                renderCards(btn.getAttribute('data-tag'));
             });
         });
 
-        renderCards();
+        renderCards('all');
     </script>
 </body>
 </html>
