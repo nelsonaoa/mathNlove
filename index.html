@@ -54,21 +54,22 @@
                 </div>
                 <button class="close-btn" id="close-modal">✕ 關閉</button>
             </div>
-            <!-- GeoGebra 互動畫布區 -->
+            <!-- 1. GeoGebra 互動畫布區 -->
             <div class="ggb-container">
                 <div id="ggb-element"></div>
             </div>
-            <!-- 教學註解與操作說明區 -->
-            <div class="modal-note">
-                <h4>📝 教學註解與操作提示</h4>
-                <p id="modal-desc"></p>
-            </div>
-            <!-- YouTube影片區 -->
+
+            <!-- 2. YouTube 教學解說影片區（移到說明上方） -->
             <div class="modal-video" id="modal-video-box" style="display: none;">
-                <h4>🎬 相關影片解說</h4>
                 <div class="video-wrapper">
                     <iframe id="modal-video-frame" src="" title="YouTube 教學影片" frameborder="0" allowfullscreen></iframe>
                 </div>
+            </div>
+
+            <!-- 3. 教學註解與操作說明區（統一放在最下方） -->
+            <div class="modal-note">
+                <h4>📝 教學註解與操作提示</h4>
+                <p id="modal-desc"></p>
             </div>
         </div>
     </div>
