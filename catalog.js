@@ -9,6 +9,6 @@ const ggbCatalog = [
         unit: "polar",
         title: "極座標曲線模擬器",
         file: "polarcurve.ggb",
-        note: "我們習慣使用的函數y=f(x)，若轉變為極座標上的函數r=f(t)，會發生什麼事？"
+        note: "我們習慣使用的函數y=f(x)，若轉變為極座標上的函數r=f(t)，會發生什麼事？試著填入你的函數吧！"
     }
 ];
