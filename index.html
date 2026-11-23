@@ -38,7 +38,6 @@
         <button data-unit="stat">統計</button>
         <button data-unit="rubik">魔術方塊</button>
         <button data-unit="toy">自製玩具</button>
-      <button data-unit="video">YT影片</button>
     </nav>
 
     <!-- 互動模擬清單（由 catalog.js 自動生成卡片） -->
@@ -99,8 +98,7 @@
             'series': '級數',
             'stat': '統計',
             'rubik': '魔術方塊',
-            'toy': '自製玩具',
-            'video':'YT影片'
+            'toy': '自製玩具'
         };
 
         // 渲染卡片清單
@@ -215,7 +213,13 @@
                 closeGgbModal();
             }
         });
-
+        unitButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                unitButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderCards(btn.getAttribute('data-unit'));
+            });
+        });
         renderCards('all');
     </script>
 </body>
