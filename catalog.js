@@ -1,26 +1,26 @@
 // 預設 860x520
 const ggbCatalog = [
     {
-        unit: "pi",
+        tags:["圓周率"],
         title: "布豐投針實驗",
         file: "buffon.ggb",
         note: "隨機投針到地板上，觀察針與地板縫相交的機率，以此方式模擬計算圓周率 π 的近似值。\n按左上的「A」開始模擬。"
     },
     {
-        unit: "polar",
+        tags:["極座標曲線"],
         title: "極座標曲線模擬器",
         file: "polarcurve.ggb",
         width: 900,
         note: "我們習慣使用的函數y=f(x)，若轉變為極座標上的函數r=f(t)，會發生什麼事？試著填入你的函數吧！"
     },
     {
-        unit: "rubik",
+        tags:["魔術方塊"],
         title: "高階方塊對邊交換",
         youtube: "https://www.youtube.com/watch?v=eYOHfv0b_C0",
         note: "基本上是公式演示，點擊觀看完整影片。"
     },
     {
-        unit: "rubik",
+        tags:["魔術方塊"],
         title: "高階方塊單邊翻轉",
         youtube: "https://www.youtube.com/watch?v=dhaYCQqy9D8",
         note: "基本上是公式演示，點擊觀看完整影片。"
