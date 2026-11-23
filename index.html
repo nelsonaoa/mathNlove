@@ -63,6 +63,13 @@
                 <h4>📝 教學註解與操作提示</h4>
                 <p id="modal-desc"></p>
             </div>
+            <!-- YouTube影片區 -->
+            <div class="modal-video" id="modal-video-box" style="display: none;">
+                <h4>🎬 相關影片解說</h4>
+                <div class="video-wrapper">
+                    <iframe id="modal-video-frame" src="" title="YouTube 教學影片" frameborder="0" allowfullscreen></iframe>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -126,56 +133,86 @@
                 simGrid.appendChild(card);
             });
         }
-
-        // 開啟 GeoGebra 互動視窗（純互動、不提供下載）
+        // 輔助函式：將一般 YouTube 網址轉成 embed 嵌入網址
+        function getYoutubeEmbedUrl(url)
+        {
+            if(!url)
+            {
+                return '';
+            }
+            const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^&?\/]+)/);
+            return match ? `https://www.youtube.com/embed/${match[1]}` : url;
+        }
+        // 開啟 GeoGebra 互動視窗
+        // 開啟 GeoGebra 互動視窗（支援自訂寬高、滾輪鎖定與 YouTube 影片）
         function openGgbModal(item)
         {
             const subTag = item.subUnit ? ` · ${item.subUnit}` : '';
             document.getElementById('modal-unit').textContent = `${unitNames[item.unit] || item.unit}${subTag}`;
             document.getElementById('modal-title').textContent = item.title;
-            document.getElementById('modal-desc').textContent = item.note;
-            document.getElementById('ggb-element').innerHTML = '';
+            document.getElementById('modal-desc').innerHTML = item.note;
+
+            const ggbContainer = document.querySelector('.ggb-container');
+            const ggbElement = document.getElementById('ggb-element');
+            ggbElement.innerHTML = '';
+
+            // 1. 處理 GGB 畫布（若該項目是「純 YT 影片」沒有 file，則隱藏 GGB 畫布）
+            if(item.file)
+            {
+                ggbContainer.style.display = 'flex';
+                const params = {
+                    "appName": "classic",
+                    "filename": `files/${item.file}`,
+                    "width": item.width || 860,     // 沒寫就預設 860
+                    "height": item.height || 520,   // 沒寫就預設 520
+                    "showToolBar": false,
+                    "showAlgebraInput": false,
+                    "showMenuBar": false,
+                    "enableRightClick": false,
+                    "enableShiftDragZoom": item.allowZoom === true,
+                    "showResetIcon": true,
+                    "language": "zh-TW"
+                };
+                const applet = new GGBApplet(params, true);
+                applet.inject('ggb-element');
+            }
+            else
+            {
+                ggbContainer.style.display = 'none';
+            }
+
+            // 2. 處理 YouTube 影片（有填 youtube 欄位才顯示）
+            const videoBox = document.getElementById('modal-video-box');
+            const videoFrame = document.getElementById('modal-video-frame');
+            if(item.youtube)
+            {
+                videoBox.style.display = 'block';
+                videoFrame.src = getYoutubeEmbedUrl(item.youtube);
+            }
+            else
+            {
+                videoBox.style.display = 'none';
+                videoFrame.src = '';
+            }
 
             modal.classList.add('open');
-
-            const params = 
-            {
-                "appName": "classic",
-                "filename": `files/${item.file}`,
-                "width": 860,
-                "height": 520,
-                "showToolBar": false,
-                "showAlgebraInput": false,
-                "showMenuBar": false,
-                "enableRightClick": false,
-                "enableShiftDragZoom": item.allowZoom === true, 
-                "showResetIcon": true,
-                "language": "zh-TW"
-            };
-
-            const applet = new GGBApplet(params, true);
-            applet.inject('ggb-element');
         }
 
-        closeModalBtn.addEventListener('click', () => {
+        // 統一的關閉清理函式（關閉視窗時順便停止 YouTube 播放聲音）
+        function closeGgbModal()
+        {
             modal.classList.remove('open');
             document.getElementById('ggb-element').innerHTML = '';
-        });
+            document.getElementById('modal-video-frame').src = '';
+        }
+
+        closeModalBtn.addEventListener('click', closeGgbModal);
 
         modal.addEventListener('click', (e) => {
             if(e.target === modal)
             {
-                modal.classList.remove('open');
-                document.getElementById('ggb-element').innerHTML = '';
+                closeGgbModal();
             }
-        });
-
-        unitButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                unitButtons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                renderCards(btn.getAttribute('data-unit'));
-            });
         });
 
         renderCards('all');
