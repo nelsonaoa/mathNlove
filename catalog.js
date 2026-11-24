@@ -20,7 +20,6 @@ const ggbCatalog = [
         file: "map.ggb",
         width: 1024,
         height:780,
-        scale: 0.78,
         note: "我們習慣使用的函數y=f(x)，若轉變為極座標上的函數r=f(t)，會發生什麼事？試著填入你的函數吧！"
     },
     {
