@@ -10,6 +10,14 @@ const ggbCatalog = [
         tags:["極座標曲線"],
         title: "極座標曲線模擬器",
         file: "polarcurve.ggb",
+        width: 1024,
+        allowZoom: true,
+        note: "把南極中心展開變成一條線，就是圓柱等距地圖！極座標曲線則是反過來，將x軸捏成原點，而y座標則變成原點到動點的距離。"
+    },
+    {
+        tags:["極座標曲線"],
+        title: "極座標與地圖",
+        file: "map.ggb",
         width: 900,
         note: "我們習慣使用的函數y=f(x)，若轉變為極座標上的函數r=f(t)，會發生什麼事？試著填入你的函數吧！"
     },
