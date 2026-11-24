@@ -75,30 +75,28 @@ function openGgbModal(item)
     const ggbContainer = document.querySelector('.ggb-container');
     const ggbElement = document.getElementById('ggb-element');
     ggbElement.innerHTML = '';
+    ggbElement.style.zoom = '';
 
-    // 1. 處理 GeoGebra 畫布
+    // 1. 處理 GeoGebra 畫布（自動撐滿目前裝置的彈窗寬度，並依原始長寬比換算高度）
     if(item.file)
     {
         ggbContainer.style.display = 'flex';
-        modal.classList.add('open'); // 先打開彈窗，才能準確量測容器實際寬度
+        modal.classList.add('open');
 
         const rawWidth = item.width || 1180;
         const rawHeight = item.height || 620;
-
-        // 取得目前螢幕（電腦或平板）彈窗內部的實際可用寬度
         const containerWidth = ggbContainer.clientWidth || 1180;
 
-        // 自動計算縮放比例：若容器比原始 GGB 窄，就等比例縮小到剛好塞滿
-        const autoScale = Math.min(1, containerWidth / rawWidth);
-        const finalScale = item.scale ? Math.min(item.scale, autoScale) : autoScale;
-
-        ggbElement.style.zoom = finalScale;
+        // 讓實際渲染寬度直接貼齊容器寬度（不超過原始設計寬度，或直接滿版撐開）
+        const renderWidth = Math.min(rawWidth, containerWidth);
+        const renderHeight = Math.round(renderWidth * (rawHeight / rawWidth));
 
         const params = {
             "appName": "classic",
             "filename": `files/${item.file}`,
-            "width": rawWidth,
-            "height": rawHeight,
+            "width": renderWidth,
+            "height": renderHeight,
+            "scale": renderWidth / rawWidth,
             "showToolBar": false,
             "showAlgebraInput": false,
             "showMenuBar": false,
