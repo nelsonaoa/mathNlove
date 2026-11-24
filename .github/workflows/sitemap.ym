@@ -1,0 +1,62 @@
+name: Auto Generate Sitemap
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'catalog.js'
+      - 'index.html'
+      - '.github/workflows/sitemap.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build-sitemap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate sitemap.xml from catalog.js
+        run: |
+          node -e '
+            const fs = require("fs");
+            const vm = require("vm");
+
+            // 讀取並執行 catalog.js 取得 ggbCatalog 陣列
+            const code = fs.readFileSync("catalog.js", "utf8");
+            const context = {};
+            vm.createContext(context);
+            vm.runInContext(code + "; this.catalog = ggbCatalog;", context);
+
+            const baseUrl = "https://nelsonaoa.github.io/mathNlove/";
+            const today = new Date().toISOString().split("T")[0];
+
+            // 1. 加入主首頁
+            const urls = [
+              `  <url>\n    <loc>${baseUrl}</loc>\n    <lastmod>${today}</lastmod>\n    <priority>1.0</priority>\n  </url>`
+            ];
+
+            // 2. 逐筆加入每個作品的 ?open=slug 網址
+            (context.catalog || []).forEach(item => {
+              const slug = item.file ? item.file.replace(/\.ggb$/i, "") : item.title;
+              if(slug)
+              {
+                const fullUrl = `${baseUrl}?open=${encodeURIComponent(slug)}`;
+                urls.push(`  <url>\n    <loc>${fullUrl}</loc>\n    <lastmod>${today}</lastmod>\n    <priority>0.8</priority>\n  </url>`);
+              }
+            });
+
+            const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join("\n")}\n</urlset>\n`;
+            fs.writeFileSync("sitemap.xml", xml);
+          '
+
+      - name: Commit and push sitemap.xml
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add sitemap.xml
+          git diff --staged --quiet || git commit -m "Auto update sitemap.xml"
+          git push
