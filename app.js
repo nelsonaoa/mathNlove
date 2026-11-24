@@ -19,6 +19,60 @@ function getItemSlug(item)
     return item.title;
 }
 
+// 自動讀取 .ggb 內部 XML 偵測原始設計寬高
+async function detectGgbSize(filePath)
+{
+    try
+    {
+        const response = await fetch(filePath);
+        const buffer = await response.arrayBuffer();
+        const zip = await JSZip.loadAsync(buffer);
+        const xmlFile = zip.file('geogebra.xml');
+        if(!xmlFile)
+        {
+            return { width: 1000, height: 600 };
+        }
+
+        const xmlText = await xmlFile.async('text');
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+
+        // 讀取所有繪圖區（含雙繪圖區）的 <size width="..." height="...">
+        const views = xmlDoc.querySelectorAll('euclidianView');
+        let totalWidth = 0;
+        let maxHeight = 0;
+
+        views.forEach(view => {
+            const sizeNode = view.querySelector('size');
+            if(sizeNode)
+            {
+                const w = parseInt(sizeNode.getAttribute('width'), 10) || 0;
+                const h = parseInt(sizeNode.getAttribute('height'), 10) || 0;
+                totalWidth += w;
+                if(h > maxHeight)
+                {
+                    maxHeight = h;
+                }
+            }
+        });
+
+        // 加上視圖分隔線與邊框微調緩衝
+        if(views.length > 1)
+        {
+            totalWidth += 16;
+        }
+
+        return {
+            width: totalWidth > 100 ? totalWidth : 1000,
+            height: maxHeight > 100 ? maxHeight : 600
+        };
+    }
+    catch(err)
+    {
+        return { width: 1000, height: 600 };
+    }
+}
+
 // 渲染卡片清單
 function renderCards(filterTag = 'all')
 {
@@ -62,8 +116,8 @@ function getYoutubeEmbedUrl(url)
     return match ? `https://www.youtube.com/embed/${match[1]}` : url;
 }
 
-// 開啟 GeoGebra 互動視窗（同步更新瀏覽器網址列）
-function openGgbModal(item)
+// 開啟 GeoGebra 互動視窗（自動偵測 GGB 尺寸 + 同步更新網址列）
+async function openGgbModal(item)
 {
     const tagsHtml = getItemTags(item)
         .map(tag => `<span class="modal-unit-badge"># ${tag}</span>`)
@@ -73,29 +127,55 @@ function openGgbModal(item)
     document.getElementById('modal-desc').innerHTML = item.note;
     document.title = `${item.title} - 愛的數學你我他`;
 
-
     const ggbContainer = document.querySelector('.ggb-container');
     const ggbElement = document.getElementById('ggb-element');
     ggbElement.innerHTML = '';
     ggbElement.style.zoom = '';
 
-    // 1. 處理 GeoGebra 畫布（自動撐滿目前裝置的彈窗寬度，並依原始長寬比換算高度）
+    // 處理 YouTube 影片
+    const videoBox = document.getElementById('modal-video-box');
+    const videoFrame = document.getElementById('modal-video-frame');
+    if(item.youtube)
+    {
+        videoBox.style.display = 'block';
+        videoFrame.src = getYoutubeEmbedUrl(item.youtube);
+    }
+    else
+    {
+        videoBox.style.display = 'none';
+        videoFrame.src = '';
+    }
+
+    // 更新網址列與開啟視窗
+    const url = new URL(window.location);
+    url.searchParams.set('open', getItemSlug(item));
+    window.history.replaceState({}, '', url);
+    modal.classList.add('open');
+
+    // 處理 GeoGebra 畫布
     if(item.file)
     {
         ggbContainer.style.display = 'flex';
-        modal.classList.add('open');
+        const filePath = `files/${item.file}`;
 
-        const rawWidth = item.width || 1180;
-        const rawHeight = item.height || 620;
-        const containerWidth = ggbContainer.clientWidth || 1180;
+        // 若 catalog.js 沒手動指定寬高，就自動從 .ggb 檔偵測真實尺寸
+        let rawWidth = item.width;
+        let rawHeight = item.height;
+        if(!rawWidth || !rawHeight)
+        {
+            const detected = await detectGgbSize(filePath);
+            rawWidth = rawWidth || detected.width;
+            rawHeight = rawHeight || detected.height;
+        }
 
-        // 讓實際渲染寬度直接貼齊容器寬度（不超過原始設計寬度，或直接滿版撐開）
+        // 若螢幕（如平板）比 GGB 原始寬度窄，則等比例縮小至剛好貼齊容器寬度；電腦夠寬則維持原始 1:1 大小
+        const containerWidth = ggbContainer.clientWidth || 1280;
         const renderWidth = Math.min(rawWidth, containerWidth);
         const renderHeight = Math.round(renderWidth * (rawHeight / rawWidth));
 
         const params = {
             "appName": "classic",
-            "filename": `files/${item.file}`,
+            "filename": filePath,
             "width": renderWidth,
             "height": renderHeight,
             "scale": renderWidth / rawWidth,
@@ -121,27 +201,6 @@ function openGgbModal(item)
     {
         ggbContainer.style.display = 'none';
     }
-
-    // 2. 處理 YouTube 影片
-    const videoBox = document.getElementById('modal-video-box');
-    const videoFrame = document.getElementById('modal-video-frame');
-    if(item.youtube)
-    {
-        videoBox.style.display = 'block';
-        videoFrame.src = getYoutubeEmbedUrl(item.youtube);
-    }
-    else
-    {
-        videoBox.style.display = 'none';
-        videoFrame.src = '';
-    }
-
-    // 將專屬代碼寫入網址列，方便直接複製分享
-    const url = new URL(window.location);
-    url.searchParams.set('open', getItemSlug(item));
-    window.history.replaceState({}, '', url);
-
-    modal.classList.add('open');
 }
 
 // 關閉互動視窗並還原網址列
