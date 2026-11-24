@@ -79,6 +79,8 @@ function openGgbModal(item)
     if(item.file)
     {
         ggbContainer.style.display = 'flex';
+        ggbElement.style.zoom = item.scale || 1;
+
         const params = {
             "appName": "classic",
             "filename": `files/${item.file}`,
@@ -90,7 +92,14 @@ function openGgbModal(item)
             "enableRightClick": false,
             "enableShiftDragZoom": item.allowZoom === true,
             "showResetIcon": true,
-            "language": "zh-TW"
+            "language": "zh-TW",
+            "appletOnLoad": function(api)
+            {
+                if(item.allowZoom === true)
+                {
+                    api.setMode(0);
+                }
+            }
         };
         const applet = new GGBApplet(params, true);
         applet.inject('ggb-element');
