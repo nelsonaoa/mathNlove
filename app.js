@@ -71,6 +71,8 @@ function openGgbModal(item)
     document.getElementById('modal-tags').innerHTML = tagsHtml;
     document.getElementById('modal-title').textContent = item.title;
     document.getElementById('modal-desc').innerHTML = item.note;
+    document.title = `${item.title} - 愛的數學你我他`;
+
 
     const ggbContainer = document.querySelector('.ggb-container');
     const ggbElement = document.getElementById('ggb-element');
@@ -148,6 +150,7 @@ function closeGgbModal()
     modal.classList.remove('open');
     document.getElementById('ggb-element').innerHTML = '';
     document.getElementById('modal-video-frame').src = '';
+    document.title = '愛的數學你我他 - 互動數學實驗室';
 
     const url = new URL(window.location);
     url.searchParams.delete('open');
