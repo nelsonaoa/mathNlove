@@ -82,8 +82,8 @@ function openGgbModal(item)
         const params = {
             "appName": "classic",
             "filename": `files/${item.file}`,
-            "width": item.width || 860,
-            "height": item.height || 520,
+            "width": item.width || 1180,
+            "height": item.height || 620,
             "showToolBar": false,
             "showAlgebraInput": false,
             "showMenuBar": false,
