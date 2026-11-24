@@ -1,4 +1,5 @@
 // 預設 1180X620
+//allowZoom: true,
 const ggbCatalog = [
     {
         tags:["圓周率"],
@@ -16,8 +17,6 @@ const ggbCatalog = [
         tags:["極座標曲線","地球科學"],
         title: "極座標與地圖",
         file: "map.ggb",
-        height:700,
-        allowZoom: true,
         note: "把南極中心展開變成一條線，就是圓柱等距地圖！極座標曲線則是反過來，將x軸捏成原點，而y座標則變成原點到動點的距離。"
     },
     {
