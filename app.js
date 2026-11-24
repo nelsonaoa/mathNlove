@@ -76,16 +76,29 @@ function openGgbModal(item)
     const ggbElement = document.getElementById('ggb-element');
     ggbElement.innerHTML = '';
 
+    // 1. 處理 GeoGebra 畫布
     if(item.file)
     {
         ggbContainer.style.display = 'flex';
-        ggbElement.style.zoom = item.scale || 1;
+        modal.classList.add('open'); // 先打開彈窗，才能準確量測容器實際寬度
+
+        const rawWidth = item.width || 1180;
+        const rawHeight = item.height || 620;
+
+        // 取得目前螢幕（電腦或平板）彈窗內部的實際可用寬度
+        const containerWidth = ggbContainer.clientWidth || 1180;
+
+        // 自動計算縮放比例：若容器比原始 GGB 窄，就等比例縮小到剛好塞滿
+        const autoScale = Math.min(1, containerWidth / rawWidth);
+        const finalScale = item.scale ? Math.min(item.scale, autoScale) : autoScale;
+
+        ggbElement.style.zoom = finalScale;
 
         const params = {
             "appName": "classic",
             "filename": `files/${item.file}`,
-            "width": item.width || 1180,
-            "height": item.height || 620,
+            "width": rawWidth,
+            "height": rawHeight,
             "showToolBar": false,
             "showAlgebraInput": false,
             "showMenuBar": false,
@@ -109,6 +122,7 @@ function openGgbModal(item)
         ggbContainer.style.display = 'none';
     }
 
+    // 2. 處理 YouTube 影片
     const videoBox = document.getElementById('modal-video-box');
     const videoFrame = document.getElementById('modal-video-frame');
     if(item.youtube)
