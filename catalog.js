@@ -56,6 +56,18 @@ const ggbCatalog = [
         note: "在橢圓上的焦點發出超音波時，能量會逐漸分散，但是碰到橢圓壁後，又會集中在另一個焦點上。這樣就能精準擊碎腎結石，而不會把你的腎打爛！\n拉動橢圓邊界並且想想看，怎麼樣的橢圓比較適合這個手術？"
     },
     {
+        tags:["圓錐曲線","雙曲線","自製玩具"],
+        title: "會轉彎的直線",
+        youtube: "https://youtube.com/shorts/WHuASUVME5Q",
+        note: "你知道嗎？一把義大利麵可以做出一個單葉雙曲面，一個單葉雙曲面又可以縱切變成雙曲線，然後又可以用義大利麵巧妙的穿過他！"
+    },
+    {
+        tags:["黃金比例","自製玩具"],
+        title: "Helicon：螺旋與松果之間的關係",
+        youtube: "https://youtube.com/shorts/sGxqeGhyduI",
+        note: "如果把黃金比例應用在角度上，就會出現松果的排列方式，這排列方式又會和費氏數列有關係。這是巧合嗎？\n我可不這麼認為！"
+    },
+    {
         tags:["地球科學"],
         title: "如果地心說是正確的，太陽系長什麼樣子？",
         youtube: "https://www.youtube.com/watch?v=VkgqsjPy1m4",
