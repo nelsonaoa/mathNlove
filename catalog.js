@@ -75,7 +75,7 @@ const ggbCatalog = [
     },
     {
         tags:["黃金比例","自製玩具"],
-        title: "Helicon：螺旋與松果之間的關係",
+        title: "Helicon：螺旋與松果聯想出的玩具",
         youtube: "https://youtube.com/shorts/sGxqeGhyduI",
         note: "如果把黃金比例應用在角度上，就會出現松果的排列方式，這排列方式又會和費氏數列有關係。這是巧合嗎？\n我可不這麼認為！"
     },
