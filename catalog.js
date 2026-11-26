@@ -20,6 +20,18 @@ const ggbCatalog = [
         note: "利用圓外切、內接正多邊形的周長，從正六邊形出發，每次都把邊數加倍，逐漸逼近 π 的值。"
     },
     {
+        tags:["多項式"],
+        title: "韋達公式",
+        youtube:"https://www.youtube.com/watch?v=OuqGT5G2_jA",
+        note: "高中學到的根與係數的關係，其實是韋達發明的公式，想不到在某些奇妙的影片中會出現，真是受用無窮！"
+    },
+    {
+        tags:["數論"],
+        title: "訊息數值化與進位制",
+        youtube:"https://www.youtube.com/watch?v=_k-GF1GAHHI",
+        note: "烘焙王的故事中，一直存在一個神奇的數學謎題，擁有太陽之手的主角竟然能秒解!? 到底是什麼謎題？"
+    },
+    {
         tags:["極座標曲線"],
         title: "極座標曲線模擬器",
         file: "polarcurve.ggb",
