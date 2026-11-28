@@ -188,10 +188,15 @@ async function openGgbModal(item)
             "language": "zh-TW",
             "appletOnLoad": function(api)
             {
+                if(typeof api.recalculateEnvironments === 'function')
+                {
+                    api.recalculateEnvironments();
+                }
                 if(item.allowZoom === true)
                 {
                     api.setMode(0);
                 }
+                
             }
         };
         const applet = new GGBApplet(params, true);
