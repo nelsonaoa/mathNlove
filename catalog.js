@@ -41,6 +41,7 @@ const ggbCatalog = [
         tags:["極座標曲線","地球科學"],
         title: "極座標與地圖",
         file: "map.ggb",
+        allowZoom: true,
         note: "把南極中心展開變成一條線，就是圓柱等距地圖！極座標曲線則是反過來，將x軸捏成原點，而y座標則變成原點到動點的距離。"
     },
     {
@@ -54,6 +55,13 @@ const ggbCatalog = [
         title: "高階方塊單邊翻轉",
         youtube: "https://www.youtube.com/watch?v=dhaYCQqy9D8",
         note: "基本上是公式演示，點擊觀看完整影片。"
+    },
+    {
+        tags:["空間圖形"],
+        title: "立方體的截面",
+        file: "cube.ggb",
+        allowZoom: true,
+        note: "正立方體的截面有可能會是幾邊形呢？\n長按右鍵可以旋轉視角。"
     },
     {
         tags:["圓錐曲線","橢圓"],
