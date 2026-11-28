@@ -19,7 +19,7 @@ function getItemSlug(item)
     return item.title;
 }
 
-// 自動讀取 .ggb 內部 XML 偵測原始設計寬高（優先讀取 perspective 真實視窗配置 + 最小寬度保底）
+// 自動讀取 .ggb 內部 XML 偵測原始設計寬高（嚴格貼合原檔大小，不主動撐大畫布）
 async function detectGgbSize(filePath)
 {
     try
@@ -30,7 +30,7 @@ async function detectGgbSize(filePath)
         const xmlFile = zip.file('geogebra.xml');
         if(!xmlFile)
         {
-            return { width: 1100, height: 620 };
+            return { width: 960, height: 600 };
         }
 
         const xmlText = await xmlFile.async('text');
@@ -39,14 +39,14 @@ async function detectGgbSize(filePath)
 
         let totalWidth = 0;
         let maxHeight = 0;
+        let has3D = xmlDoc.querySelector('euclidianView3D') !== null;
 
-        // 1. 優先讀取 <perspective> 中 visible="true" 的視圖真實寬高（對 3D 視圖最準確）
+        // 1. 優先讀取 <perspective> 中 visible="true" 的視圖真實寬高
         const perspectiveViews = xmlDoc.querySelectorAll('perspective > views > view[visible="true"]');
         if(perspectiveViews.length > 0)
         {
             perspectiveViews.forEach(v => {
                 const id = v.getAttribute('id');
-                // id=1(繪圖區1), id=2(繪圖區2), id=512(3D繪圖區)
                 if(id === '1' || id === '2' || id === '512')
                 {
                     const w = parseInt(v.getAttribute('width'), 10) || 0;
@@ -60,10 +60,10 @@ async function detectGgbSize(filePath)
             });
         }
 
-        // 2. 若 perspective 無資料，退回讀取 euclidianView / euclidianView3D 的 <size>
+        // 2. 退回讀取 euclidianView 的原始 <size>（保留你存檔時的精確視窗框線）
         if(totalWidth < 100)
         {
-            const views = xmlDoc.querySelectorAll('euclidianView, euclidianView3D');
+            const views = xmlDoc.querySelectorAll('euclidianView');
             views.forEach(view => {
                 const sizeNode = view.querySelector('size');
                 if(sizeNode)
@@ -79,15 +79,20 @@ async function detectGgbSize(filePath)
             });
         }
 
-        // 3. 最小安全寬度保底：避免 3D 檔案未寫入寬度時被壓縮成細條
-        const safeWidth = totalWidth >= 800 ? totalWidth : 1100;
-        const safeHeight = maxHeight >= 450 ? maxHeight : 620;
+        // 3. 只有含 3D 視圖且寬度異常過窄（< 600）時才補 3D 視窗寬度；一般 2D 檔案完全照原尺寸
+        if(has3D && totalWidth < 600)
+        {
+            totalWidth += 750;
+        }
 
-        return { width: safeWidth, height: safeHeight };
+        return {
+            width: totalWidth > 100 ? totalWidth : 960,
+            height: maxHeight > 100 ? maxHeight : 600
+        };
     }
     catch(err)
     {
-        return { width: 1100, height: 620 };
+        return { width: 960, height: 600 };
     }
 }
 
