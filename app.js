@@ -19,7 +19,7 @@ function getItemSlug(item)
     return item.title;
 }
 
-// 自動讀取 .ggb 內部 XML 偵測原始設計寬高
+// 自動讀取 .ggb 內部 XML 偵測原始設計寬高（優先讀取 perspective 真實視窗配置 + 最小寬度保底）
 async function detectGgbSize(filePath)
 {
     try
@@ -30,46 +30,64 @@ async function detectGgbSize(filePath)
         const xmlFile = zip.file('geogebra.xml');
         if(!xmlFile)
         {
-            return { width: 1000, height: 600 };
+            return { width: 1100, height: 620 };
         }
 
         const xmlText = await xmlFile.async('text');
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
 
-        // 讀取所有繪圖區（含雙繪圖區）的 <size width="..." height="...">
-        const views = xmlDoc.querySelectorAll('euclidianView');
         let totalWidth = 0;
         let maxHeight = 0;
 
-        views.forEach(view => {
-            const sizeNode = view.querySelector('size');
-            if(sizeNode)
-            {
-                const w = parseInt(sizeNode.getAttribute('width'), 10) || 0;
-                const h = parseInt(sizeNode.getAttribute('height'), 10) || 0;
-                totalWidth += w;
-                if(h > maxHeight)
-                {
-                    maxHeight = h;
-                }
-            }
-        });
-
-        // 加上視圖分隔線與邊框微調緩衝
-        if(views.length > 1)
+        // 1. 優先讀取 <perspective> 中 visible="true" 的視圖真實寬高（對 3D 視圖最準確）
+        const perspectiveViews = xmlDoc.querySelectorAll('perspective > views > view[visible="true"]');
+        if(perspectiveViews.length > 0)
         {
-            totalWidth += 16;
+            perspectiveViews.forEach(v => {
+                const id = v.getAttribute('id');
+                // id=1(繪圖區1), id=2(繪圖區2), id=512(3D繪圖區)
+                if(id === '1' || id === '2' || id === '512')
+                {
+                    const w = parseInt(v.getAttribute('width'), 10) || 0;
+                    const h = parseInt(v.getAttribute('height'), 10) || 0;
+                    totalWidth += w;
+                    if(h > maxHeight)
+                    {
+                        maxHeight = h;
+                    }
+                }
+            });
         }
 
-        return {
-            width: totalWidth > 100 ? totalWidth : 1000,
-            height: maxHeight > 100 ? maxHeight : 600
-        };
+        // 2. 若 perspective 無資料，退回讀取 euclidianView / euclidianView3D 的 <size>
+        if(totalWidth < 100)
+        {
+            const views = xmlDoc.querySelectorAll('euclidianView, euclidianView3D');
+            views.forEach(view => {
+                const sizeNode = view.querySelector('size');
+                if(sizeNode)
+                {
+                    const w = parseInt(sizeNode.getAttribute('width'), 10) || 0;
+                    const h = parseInt(sizeNode.getAttribute('height'), 10) || 0;
+                    totalWidth += w;
+                    if(h > maxHeight)
+                    {
+                        maxHeight = h;
+                    }
+                }
+            });
+        }
+
+        // 3. 最小安全寬度保底：避免 3D 檔案未寫入寬度時被壓縮成細條
+        const safeWidth = totalWidth >= 800 ? totalWidth : 1100;
+        const safeHeight = maxHeight >= 450 ? maxHeight : 620;
+
+        return { width: safeWidth, height: safeHeight };
     }
     catch(err)
     {
-        return { width: 1000, height: 600 };
+        return { width: 1100, height: 620 };
     }
 }
 
